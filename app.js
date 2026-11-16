@@ -1,3 +1,4 @@
+import {gridMap, drawGrid, showSolution} from './sudoku.js';
 const $ = id => document.getElementById(id);
 const titles = {thinking:'Рассуждение', assistant:'Комментарий агента', python:'Вызов Python', result:'Результат Python'};
 const games = new Map([
@@ -106,7 +107,8 @@ function contour(ctx,mask,color,fill) {
   }
   ctx.stroke();
 }
-function drawBoard(step,selected) {
+let currentMap = null;
+function drawBoard(step,selected,cell = null) {
   const {d,atlas}=active, n=step.frame;
   const ctx=$('board').getContext('2d');
   ctx.imageSmoothingEnabled=false;
@@ -128,12 +130,21 @@ function drawBoard(step,selected) {
     if(m){ctx.beginPath();ctx.arc((+m[2]+.5)*10,(+m[1]+.5)*10,17,0,Math.PI*2);ctx.strokeStyle='#142025';ctx.lineWidth=6;ctx.stroke();ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.stroke();}
     note=action+' · изменилось клеток: '+changed;color='var(--gold)';
   }
+  if(currentMap) {
+    drawGrid(ctx,currentMap,cell);
+    const detail=cell ? 'Клетка ('+cell.row+', '+cell.col+') · '+counted(cell.boxes.length,'объект','объекта','объектов') : 'gridmap · сетка 4 × 4';
+    note=step.mark ? detail+' · '+note : detail;
+    if(!step.mark)color='var(--mint)';
+  }
   $('note').textContent=note;$('swatch').style.background=color;
   $('board').setAttribute('aria-label',games.get(d.game).name+', ход '+n+'. '+note);
 }
 function render() {
   const {d,steps,cardSteps}=active, s=steps[index], c=d.cards[s.ci], f=d.frames[s.frame], changed=displayedCard!==s.ci;
   selectedLine=null;
+  currentMap=gridMap(d.sudoku,c,s);
+  showSolution(d.sudoku,c,f);
+  $('board').toggleAttribute('data-selectable',Boolean(currentMap?.cells.length));
   $('move').textContent='Ход '+s.frame+' / '+(d.frames.length-1);
   $('turn').textContent='Ответ '+c.turn+' / '+d.cards.at(-1).turn;
   $('kind').textContent=titles[c.kind];
@@ -151,7 +162,14 @@ function render() {
     paper.replaceChildren(frag);paper.scrollTop=0;displayedCard=s.ci;
   }
   paper.querySelectorAll('.active,.actionline,[data-objects]').forEach(el=>{el.classList.remove('active','actionline');el.removeAttribute('data-objects');});
+  for(const el of paper.querySelectorAll('[data-cell]')) {
+    for(const attr of ['data-cell','tabindex','role','aria-pressed'])el.removeAttribute(attr);
+  }
   for(const o of objects)paper.children[o.line].dataset.objects=o.line;
+  for(const cell of currentMap?.cells || []) {
+    const el=paper.children[cell.line];
+    el.dataset.cell=cell.line;el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-pressed','false');
+  }
   let initial=[];
   if(s.mark){
     if(s.mark.line!==null) {
@@ -161,7 +179,7 @@ function render() {
         if(rect.bottom>view.bottom||rect.top<view.top)paper.scrollTop+=rect.top-view.top-12;
       }
     }
-  } else if(objects.length){
+  } else if(objects.length && !currentMap){
     initial=objects.filter(o=>o.size<=64 && o.r<52).slice(0,4);
     if(!initial.length)initial=objects.slice(0,1);
     for(const o of initial)paper.children[o.line].classList.add('active');
@@ -169,13 +187,43 @@ function render() {
   let info=[];
   if(s.mark)info.push('Действие '+s.ai+' из '+c.actions.length);
   if(s.mark && s.mark.line===null)info.push('по записи среды');
-  if(objects.length)info.push('Нажмите строку объекта для подсветки');
+  if(currentMap?.cells.length)info.push('Выберите строку вывода или клетку на поле');
+  else if(objects.length)info.push('Нажмите строку объекта для подсветки');
   if(!info.length && paper.scrollHeight>paper.clientHeight)info.push('Прокрутите текст внутри окна');
   $('feedback').textContent=info.join(' · ');
-  drawBoard(s,initial);
+  if(currentMap?.cells.length)selectCell(currentMap.cells[0]);
+  else drawBoard(s,initial);
 }
+function selectCell(cell,scroll=false) {
+  const paper=$('paper');
+  for(const el of paper.querySelectorAll('[data-cell]')){
+    const chosen=Number(el.dataset.cell)===cell.line;
+    el.classList.toggle('active',chosen);
+    el.setAttribute('aria-pressed',String(chosen));
+  }
+  if(scroll) {
+    const box=paper.children[cell.line].getBoundingClientRect(), view=paper.getBoundingClientRect();
+    if(box.top<view.top||box.bottom>view.bottom)paper.scrollTop+=box.top-view.top-8;
+  }
+  drawBoard(active.steps[index],[],cell);
+}
+$('board').onclick=e=>{
+  if(!currentMap?.cells.length)return;
+  const rect=e.currentTarget.getBoundingClientRect();
+  const coord=(pos,size)=>Math.floor((64*pos/size-currentMap.origin)/currentMap.pitch);
+  const row=coord(e.clientY-rect.top,rect.height),col=coord(e.clientX-rect.left,rect.width);
+  const cell=currentMap.cells.find(c=>c.row===row&&c.col===col);
+  if(cell)selectCell(cell,true);
+};
+$('paper').onkeydown=e=>{
+  if(e.target.hasAttribute('data-cell') && (e.key==='Enter'||e.key===' ')){
+    e.preventDefault();e.target.click();
+  }
+};
 $('paper').onclick=e=>{
   if(!active)return;
+  const entry=e.target.closest('[data-cell]');
+  if(entry){selectCell(currentMap.cells.find(c=>c.line===Number(entry.dataset.cell)));return;}
   const line=e.target.closest('[data-objects]');if(!line)return;
   const i=Number(line.dataset.objects),s=active.steps[index],c=active.d.cards[s.ci];
   if(selectedLine===i){render();return;}

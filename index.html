@@ -6,7 +6,12 @@
 <div id="status" role="status">Загрузка траектории…</div>
 <section class="columns" id="replay" hidden>
 <div class="field"><div class="section-head"><h2>Игровое поле</h2><span class="meta" id="move"></span></div>
-<div class="board-wrap"><canvas id="board" width="640" height="640" aria-label="Сохранённый кадр игры"></canvas></div>
+<div class="board-view"><div class="board-wrap"><canvas id="board" width="640" height="640" aria-label="Сохранённый кадр игры"></canvas></div>
+<aside id="solution" aria-labelledby="solution-title" hidden>
+<span id="solution-solver"></span><h3 id="solution-title">Решение</h3>
+<div id="solution-grid" aria-label="Цифры в порядке строк"></div>
+<div class="solution-key"><span>Дано</span><span class="filled">Нашёл агент</span></div>
+</aside></div>
 <div class="note"><i id="swatch"></i><span id="note"></span></div></div>
 <div class="gen"><div class="section-head"><h2>Генерация агента</h2><span class="meta" id="turn"></span></div>
 <div class="terminal"><div class="bar"><span class="type" id="kind"></span><div class="card-nav"><button id="prev-card" aria-label="Предыдущее окно" title="Предыдущее окно (Shift + ←)">‹</button><span id="group"></span><button id="next-card" aria-label="Следующее окно" title="Следующее окно (Shift + →)">›</button></div></div><div id="paper" role="region" tabindex="0" aria-label="Полный текст текущего окна"></div></div>
