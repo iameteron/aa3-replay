@@ -1,10 +1,10 @@
-# Franzen Duck · просмотр траекторий
+# AA3 Replay · просмотр траекторий
 
-[Открыть демо](https://iameteron.github.io/franzen-duck-replay/)
+[Открыть демо](https://iameteron.github.io/aa3-replay/)
 
-Четыре победных прохождения в харнессе Franzen Duck. SB26 и TR87 сыграны с адаптером LoRA rank 64, checkpoint 312, обученным с окном 32K. Обе игры входили в обучающий набор на других траекториях.
+В демо собраны четыре победных прохождения. Для [SB26](https://iameteron.github.io/aa3-replay/#sb26/1) и [TR87](https://iameteron.github.io/aa3-replay/#tr87/1) в обучающем наборе были другие траектории тех же игр.
 
-Базовая Qwen Flash-Next сыграла [AR25](https://iameteron.github.io/franzen-duck-replay/#ar25/1) (публичная игра, seed 202610040) и [Glyph Sudoku](https://iameteron.github.io/franzen-duck-replay/#glyph_sudoku/1) (сгенерированная игра Forge, seed 202610093) в прогонах ML Space.
+Прохождения [AR25](https://iameteron.github.io/aa3-replay/#ar25/1) (публичная игра, seed 202610040) и [Glyph Sudoku](https://iameteron.github.io/aa3-replay/#glyph_sudoku/1) (сгенерированная игра Forge, seed 202610093) записаны в ML Space.
 
 | Игра | Уровни | Действия | Ответы модели |
 |---|---:|---:|---:|

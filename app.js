@@ -2,10 +2,10 @@ import {gridMap, drawGrid, showSolution} from './sudoku.js';
 const $ = id => document.getElementById(id);
 const titles = {thinking:'Рассуждение', assistant:'Комментарий агента', python:'Вызов Python', result:'Результат Python'};
 const games = new Map([
-  ['sb26', {name:'SB26', model:'LoRA r64 · checkpoint 312'}],
-  ['tr87', {name:'TR87', model:'LoRA r64 · checkpoint 312'}],
-  ['ar25', {name:'AR25', model:'Базовая модель · ML Space'}],
-  ['glyph_sudoku', {name:'Glyph Sudoku', model:'Базовая модель · ML Space', source:'Forge'}]
+  ['sb26', {name:'SB26'}],
+  ['tr87', {name:'TR87'}],
+  ['ar25', {name:'AR25'}],
+  ['glyph_sudoku', {name:'Glyph Sudoku', source:'Forge'}]
 ]);
 const plurals = new Intl.PluralRules('ru');
 function counted(n, one, few, many) {
@@ -53,7 +53,6 @@ async function choose(game, desired) {
     const count=result.d.frames.length-1;
     const meta=games.get(game);
     $('game-name').textContent=meta.name;
-    $('model-variant').textContent=meta.model;
     $('game-meta').textContent=[meta.source, counted(result.d.levels,'уровень','уровня','уровней'), counted(count,'ход','хода','ходов')].filter(Boolean).join(' · ');
     $('position').max=result.steps.length;
     $('levels').replaceChildren();
