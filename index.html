@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#10191e"><title>Franzen Duck · просмотр траекторий</title><link rel="icon" href="data:,"><link rel="stylesheet" href="./style.css"><script type="module" src="./app.js"></script></head>
+<body><main>
+<header class="mast"><div><p class="kicker">ARC-AGI-3 <span>/</span> FRANZEN DUCK</p><h1>Как агент решает <span id="game-name">SB26</span></h1></div><div class="model"><strong>Qwen Flash-Next</strong><span>LoRA r64 · checkpoint 312</span></div></header>
+<nav class="choose" aria-label="Выбор траектории"><div class="game-tabs"><button data-game="sb26" aria-pressed="true">SB26</button><button data-game="tr87" aria-pressed="false">TR87</button></div><span id="game-meta" class="meta"></span></nav>
+<div id="status" role="status">Загрузка траектории…</div>
+<section class="columns" id="replay" hidden>
+<div class="field"><div class="section-head"><h2>Игровое поле</h2><span class="meta" id="move"></span></div>
+<div class="board-wrap"><canvas id="board" width="640" height="640" aria-label="Сохранённый кадр игры"></canvas></div>
+<div class="note"><i id="swatch"></i><span id="note"></span></div></div>
+<div class="gen"><div class="section-head"><h2>Генерация агента</h2><span class="meta" id="turn"></span></div>
+<div class="terminal"><div class="bar"><span class="type" id="kind"></span><div class="card-nav"><button id="prev-card" aria-label="Предыдущее окно" title="Предыдущее окно (Shift + ←)">‹</button><span id="group"></span><button id="next-card" aria-label="Следующее окно" title="Следующее окно (Shift + →)">›</button></div></div><div id="paper" role="region" tabindex="0" aria-label="Полный текст текущего окна"></div></div>
+<div class="note" id="feedback"></div></div>
+</section>
+<section id="controls" hidden aria-label="Навигация по траектории">
+<div class="controls-row"><label class="stage" for="position" id="step"></label><div class="nav-buttons"><button id="prev" aria-label="Предыдущий шаг" title="Предыдущий шаг (←)">←</button><button id="next" aria-label="Следующий шаг" title="Следующий шаг (→)">→</button></div></div>
+<input type="range" id="position" min="1" step="1" value="1" aria-label="Шаг траектории">
+<div class="level-row"><span>Уровни</span><div id="levels" aria-label="Перейти к уровню"></div><span id="outcome"></span></div>
+</section>
+</main></body></html>
