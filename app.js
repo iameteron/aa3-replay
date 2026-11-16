@@ -1,6 +1,16 @@
 const $ = id => document.getElementById(id);
-const titles = {thinking:'Рассуждение', python:'Вызов Python', result:'Результат Python'};
-const games = ['sb26','tr87'];
+const titles = {thinking:'Рассуждение', assistant:'Комментарий агента', python:'Вызов Python', result:'Результат Python'};
+const games = new Map([
+  ['sb26', {name:'SB26', model:'LoRA r64 · checkpoint 312'}],
+  ['tr87', {name:'TR87', model:'LoRA r64 · checkpoint 312'}],
+  ['ar25', {name:'AR25', model:'Базовая модель · ML Space'}],
+  ['glyph_sudoku', {name:'Glyph Sudoku', model:'Базовая модель · ML Space', source:'Forge'}]
+]);
+const plurals = new Intl.PluralRules('ru');
+function counted(n, one, few, many) {
+  const form = plurals.select(n);
+  return n + ' ' + (form==='one' ? one : form==='few' ? few : many);
+}
 const memory = new Map(), cache = new Map();
 let active, index = 0, generation = 0, displayedCard = -1, selectedLine = null;
 function load(game) {
@@ -40,8 +50,10 @@ async function choose(game, desired) {
     if(ticket!==generation)return;
     active=result;displayedCard=-1;
     const count=result.d.frames.length-1;
-    $('game-name').textContent=game.toUpperCase();
-    $('game-meta').textContent=result.d.levels+' уровней · '+count+(game==='tr87'?' ход':' ходов');
+    const meta=games.get(game);
+    $('game-name').textContent=meta.name;
+    $('model-variant').textContent=meta.model;
+    $('game-meta').textContent=[meta.source, counted(result.d.levels,'уровень','уровня','уровней'), counted(count,'ход','хода','ходов')].filter(Boolean).join(' · ');
     $('position').max=result.steps.length;
     $('levels').replaceChildren();
     result.levelSteps.forEach((pos,level)=>{
@@ -117,7 +129,7 @@ function drawBoard(step,selected) {
     note=action+' · изменилось клеток: '+changed;color='var(--gold)';
   }
   $('note').textContent=note;$('swatch').style.background=color;
-  $('board').setAttribute('aria-label',d.game.toUpperCase()+', ход '+n+'. '+note);
+  $('board').setAttribute('aria-label',games.get(d.game).name+', ход '+n+'. '+note);
 }
 function render() {
   const {d,steps,cardSteps}=active, s=steps[index], c=d.cards[s.ci], f=d.frames[s.frame], changed=displayedCard!==s.ci;
@@ -182,7 +194,8 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Home'||e.key==='End'){e.preventDefault();go(e.key==='Home'?0:active.steps.length-1);}
 });
 function route(){
-  const m=/^#(sb26|tr87)(?:\/(\d+))?$/.exec(location.hash);
-  choose(m?.[1]||games[0],m?.[2]?Number(m[2])-1:0);
+  const m=/^#([a-z0-9_]+)(?:\/(\d+))?$/.exec(location.hash);
+  const valid=m && games.has(m[1]);
+  choose(valid?m[1]:'sb26',valid && m[2]?Number(m[2])-1:0);
 }
 window.addEventListener('hashchange',route);route();
